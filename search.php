@@ -24,7 +24,7 @@ $s_searchTerm = $_GET['key'];
 
 try {
 
-  $db = new PDO($dsn , 'postgres', 'zf2');
+  $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
   $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
