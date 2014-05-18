@@ -1,12 +1,11 @@
 #!/usr/local/zend/bin/php
 <?php
 
-ini_set('display_errors', 1);
-$dsn = 'pgsql:host=localhost;dbname=ecommerce';
+include(__DIR__ . "../config.inc.php");
 
 try {
 
-  $db = new PDO($dsn , 'postgres', 'zf2');
+  $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   $db->beginTransaction();
 
