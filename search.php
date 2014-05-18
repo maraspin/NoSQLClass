@@ -3,18 +3,13 @@
 include_once 'config.inc.php';
 
 $i_limit = 10; 
+$s_searchTerm = $_GET['key'];
 
 ?>
 
 <h1>NoSQL E-Commerce</h1>
 
-
-<form action="search.php">
-    <input name="key" /><input type="submit" value="Cerca">
-</form>
-
-
-<h2>Ultimi <?php echo $i_limit; ?> Articoli...</h2>
+<h2>Risultati della Ricerca</h2>
 <table>
     <thead>
         <td>Macrocategoria</td>
@@ -29,13 +24,16 @@ $i_limit = 10;
 
 try {
 
-  $db = new PDO($dsn , $username, $password);
+  $db = new PDO($dsn , 'postgres', 'zf2');
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
-  $sql = 'SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
+  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
           categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id 
-          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT '.$i_limit;
+          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id ".
+          "WHERE UPPER(prodotto.nome) LIKE '".strtoupper($s_searchTerm).
+          "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
+          "' OR UPPER(macrocategoria.nome) LIKE '". strtoupper($s_searchTerm)."'
+          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
 
   $start = microtime(true);
 

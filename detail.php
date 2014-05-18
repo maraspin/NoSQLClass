@@ -1,9 +1,6 @@
 <?php
 
-
-ini_set('display_errors', 1);
-$dsn = 'pgsql:host=localhost;dbname=ecommerce';
-
+include_once 'config.inc.php';
 
 $id = $_GET['id'];
 
