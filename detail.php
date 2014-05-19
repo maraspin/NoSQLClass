@@ -4,44 +4,40 @@ include_once 'config.inc.php';
 
 $id = $_GET['id'];
 
-try {
+$start = microtime(true);
 
-  $db = new PDO($dsn , 'postgres', 'zf2');
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, variante.nome as variante,
-          categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id 
-          join prodottovariante on prodotto.id = prodottovariante.id_prodotto 
-          join variante on prodottovariante.id_variante = variante.id
-          WHERE prodotto.id = ". $id ;
+// Rimuovere questa parte ed interagire con MongoDB per recuperare i dati del prodotto...
+$s_mockProduct = '{
+  "id": 61163,
+  "nome": "firepogo",
+  "prezzo": "1070.00",
+  "venduti": 2415,
+  "dataarrivo": "2014-05-07 01:00:00+02",
+  "categoria_id": 3,
+  "variante": "Blu",
+  "categoria": "Sport",
+  "macrocategoria": "Retail",
+  "varianti": [
+    "Verde",
+    "Rosso",
+    "Blu"
+  ],
+  "lunghezza": 15,
+  "altezza": 45,
+  "peso": 47,
+  "profondita": 33,
+  "componenti": 37
+}';
+$as_prodotto = json_decode($s_mockProduct, true);
 
-  $start = microtime(true);
-  
-  $st = $db->query($sql);
-  $row = $st->fetch();
-  $item = $row;
-  $varianti = $item['variante'];
-  while ($row = $st->fetch()) {
-    $varianti .= ', '.$row['variante'];
-  }
-  $item['variante'] = $varianti;
+foreach($as_prodotto as $s_attribute => $m_value) {
+    if (!is_array($m_value)) {
+        echo ucfirst($s_attribute) . ": " . $m_value . "\n<br />";
+    } 
 }
-  catch (PDOException $e) {
-    print $e->getMessage();
-}
-?>
-<h1>Scheda Prodotto: <?php echo $item['nome']; ?></h1>
-<p>Prezzo: <?php echo $item['prezzo']; ?></p>
-<p>Venduti: <?php echo $item['venduti']; ?></p>
-<p>Disp. Dal: <?php echo $item['dataarrivo']; ?></p>
-<p>Varianti: <?php echo $item['variante']; ?>
     
-<?php  
-    
-    $time_taken = microtime(true) - $start;
+$time_taken = microtime(true) - $start;
 ?>
-</p>
 
 <?php echo "Time taken: " . $time_taken; ?>
 
