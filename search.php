@@ -3,10 +3,9 @@
 include_once 'config.inc.php';
 
 $i_limit = 10; 
-$s_searchTerm = $_GET['key'];
+$s_searchTerm = strtoupper($_GET['key']);
 
 ?>
-
 <h1>NoSQL E-Commerce</h1>
 
 <h2>Risultati della Ricerca</h2>
@@ -22,42 +21,35 @@ $s_searchTerm = $_GET['key'];
     </thead>
 <?php
 
-try {
+$m = new \MongoClient(); // connect
+$db = $m->ecommerce;
+$collection = $db->prodotti;
 
-  $db = new PDO($dsn , 'postgres', 'zf2');
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
-          categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id ".
-          "WHERE UPPER(prodotto.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(macrocategoria.nome) LIKE '". strtoupper($s_searchTerm)."'
-          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
+$searchKey = array('$or' => array(array('NOME_IDX' => $s_searchTerm), 
+                                  array('CATEGORIA_IDX' => $s_searchTerm), 
+                                  array('MACROCATEGORIA_IDX' => $s_searchTerm)
+                                 )
+                  );
+$cursor = $collection->find($searchKey);
+$start = microtime(true);
 
-  $start = microtime(true);
-
-  foreach($db->query($sql) as $row){  
+  foreach ($cursor as $doc) {
       ?>
     <tr>
-    <td><?php echo $row['macrocategoria']; ?></td>
-        <td><?php echo $row['categoria']; ?></td>
-        <td><?php echo $row['nome']; ?></td>
-        <td><?php echo $row['prezzo']; ?></td>
-        <td><?php echo $row['venduti']; ?></td>
-        <td><?php echo $row['dataarrivo']; ?></td>
-        <td><a href="/detail.php?id=<?php echo $row['id']; ?>">Vedi</a></td>
+    <td><?php echo $doc['macrocategoria']; ?></td>
+        <td><?php echo $doc['categoria']; ?></td>
+        <td><?php echo $doc['nome']; ?></td>
+        <td><?php echo $doc['prezzo']; ?></td>
+        <td><?php echo $doc['venduti']; ?></td>
+        <td><?php echo $doc['dataarrivo']; ?></td>
+        <td><a href="/detail.php?id=<?php echo $doc['id']; ?>">Vedi</a></td>
     </tr>
       <?php
-  }
-  
-  $time_taken = microtime(true) - $start;
   
 }
-  catch (PDOException $e) {
-    print $e->getMessage();
-}
+  
+$time_taken = microtime(true) - $start;
+
 ?>
 </table>
-
 <?php echo "Time taken: " . $time_taken; ?>
