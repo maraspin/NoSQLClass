@@ -15,9 +15,9 @@ try {
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
   // Macrocategorie
-  $db->exec("CREATE UNIQUE INDEX primary_key_product ON prodotto USING btree (id)");
-  $db->exec("CREATE UNIQUE INDEX primary_key_cat ON categoria USING btree (id)");
-  $db->exec("CREATE UNIQUE INDEX primary_key_macrocat ON macrocategoria USING btree (id)");
+  // $db->exec("CREATE UNIQUE INDEX primary_key_product ON prodotto USING btree (id)");
+  //$db->exec("CREATE UNIQUE INDEX primary_key_cat ON categoria USING btree (id)");
+  //$db->exec("CREATE UNIQUE INDEX primary_key_macrocat ON macrocategoria USING btree (id)");
   echo "Indici creati\n";
   
   // Data gets fetched
@@ -54,6 +54,10 @@ try {
         
         unset($row['categoria_id']);
         unset($row['variante']);
+        
+        $document['NOME_IDX']= strtoupper($document['nome']);
+        $document['CATEGORIA_IDX']= strtoupper($document['categoria']);
+        $document['MACROCATEGORIA_IDX']= strtoupper($document['macrocategoria']);
         
         $document['varianti'] = $as_variants;
         
