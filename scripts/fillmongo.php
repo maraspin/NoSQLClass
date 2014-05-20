@@ -61,7 +61,7 @@ try {
         if ($document['id'] == 1) {
         
             $I_gridfs = $mongo->getGridFS();
-            $s_filename = $row['id'].'.jpg';
+            $s_filename = $document['id'].'.jpg';
             $m_storedfile_id = $I_gridfs->storeFile(__DIR__.'/../data/monocle.jpg',
                                                     array("metadata" => array("filename" => $s_filename, 
                                                                               "contentType" => 'image/jpeg')
