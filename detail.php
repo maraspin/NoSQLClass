@@ -18,6 +18,11 @@ foreach($as_prodotto as $s_attribute => $m_value) {
         echo ucfirst($s_attribute) . ": " . $m_value . "\n<br />";
     } 
 }
+
+if (array_key_exists('image_id', $as_prodotto)) {
+    $m_imageKey = $as_prodotto['image_id'];
+    echo '<img src="/mongoimg.php?id='. $m_imageKey.'" /><br /><br />';
+}
     
 $time_taken = microtime(true) - $start;
 ?>
