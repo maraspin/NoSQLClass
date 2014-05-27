@@ -24,7 +24,9 @@ var pub = redis.createClient();
 var sub = redis.createClient();
 
 io.sockets.on('connection', function (client) {
+    
     sub.subscribe("chatting");
+    
     sub.on("message", function (channel, message) {
         console.log("message received on server from publish ");
         client.send(message);
@@ -32,15 +34,15 @@ io.sockets.on('connection', function (client) {
     client.on("message", function (msg) {
         console.log(msg);
         if(msg.type == "chat"){
-            pub.publish("chatting",msg.message);
+            // utilizzare pub.publish per mostrare il messaggio dell'utente (msg.message)
         }
         else if(msg.type == "setUsername"){
-            pub.publish("chatting","A new user in connected:" + msg.user);
+            // usare il canale pub.publish per notificare partecipazione nuovo utente
             store.sadd("onlineUsers",msg.user);
         }
     });
     client.on('disconnect', function () {
         sub.quit();
-        pub.publish("chatting","User is disconnected :" + client.id);
+        // pub.publish(__CHANNEL_NAME__,"User is disconnected :" + client.id);
     });
   });
