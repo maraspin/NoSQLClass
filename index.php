@@ -62,4 +62,6 @@ try {
 ?>
 </table>
 
+<a href="http://localhost:8088/chat.html">Chat</a>
+
 <?php echo "Time taken: " . $time_taken; ?>
