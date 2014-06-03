@@ -35,6 +35,13 @@ try {
     // Load index
     $elasticaIndex = $elasticaClient->getIndex('ecommerce');
 
+    $elasticaType = $elasticaIndex->getType('prodotto');
+
+    // Define mapping
+    $mapping = new \Elastica\Type\Mapping();
+    $mapping->setType($elasticaType);
+    $mapping->setParam('index_analyzer', 'indexAnalyzer');
+    
     // Define a Query. We want a string query.
     $elasticaQueryString  = new \Elastica\Query\QueryString();
 

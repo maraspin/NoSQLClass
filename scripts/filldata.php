@@ -19,26 +19,30 @@ try {
             array(
                 'number_of_shards' => 1,
                 'number_of_replicas' => 1,
+                
                 'analysis' => array(
                     'analyzer' => array(
                         'indexAnalyzer' => array(
                             'type' => 'custom',
                             'tokenizer' => 'standard',
                             'filter' => array('standard','lowercase', 'mySnowball')
+                            // 'filter' => array('standard','lowercase', 'stop')
                         ),
                         'searchAnalyzer' => array(
                             'type' => 'custom',
                             'tokenizer' => 'standard',
-                            'filter' => array('standard', 'lowercase', 'mySnowball')
+                             'filter' => array('standard', 'lowercase', 'mySnowball')
+                            // 'filter' => array('standard','lowercase', 'stop')
                         )
                     ),
                     'filter' => array(
                         'mySnowball' => array(
                             'type' => 'snowball',
-                            'language' => 'Italian'
+                            'language' => 'English'
                         )
                     )
                 )
+                
             ),
             true
         );
@@ -50,6 +54,8 @@ try {
        $mapping->setType($elasticaType);
        $mapping->setParam('index_analyzer', 'indexAnalyzer');
        $mapping->setParam('search_analyzer', 'searchAnalyzer');
+       // $mapping->setParam('index_analyzer', 'default');
+       // $mapping->setParam('search_analyzer', 'default');
 
        // Definisce il field che funge da "booster" - deprecato in Lucene
        $mapping->setParam('_boost', array('name' => '_boost', 'null_value' => 1.0));
@@ -72,8 +78,8 @@ try {
                 ),
             ),
            'nome'     => array('type' => 'string', 'include_in_all' => TRUE),
-           'descrizione'     => array('type' => 'string', 'include_in_all' => FALSE),
-           'dataarrivo'  => array('type' => 'date', 'include_in_all' => FALSE),
+           'descrizione' => array('type' => 'string', 'include_in_all' => TRUE),
+           'dataarrivo' => array('type' => 'date', 'include_in_all' => FALSE),
            'venduti'=> array('type' => 'integer', 'include_in_all' => TRUE),
            'prezzo'=> array('type' => 'integer', 'include_in_all' => TRUE),
            '_boost'  => array('type' => 'float', 'include_in_all' => FALSE)
@@ -184,16 +190,16 @@ try {
         $chance = rand(0,20);
         switch ($chance) {
             case 5:
-               $descrizione = 'Bistecchiera a contatto dalla potenza di 1800w. 5 posizioni di cottura : barbecue e tostiera. Piastre rimovibili e e vaschetta raccogligrassi lavabile, anche in lavastoviglie. Termostato regolabile a 5 posizioni.';
+               $descrizione = 'Great item for camping with friends.';
                break;
             case 10:
-               $descrizione = 'Vuoi preparare delle buonissime crêpe fatte in casa? Ora è possibile, con il Maxi Crêpes ABC di XYZ! La super piastra per crêpe (diametro 55 cm) è amovibile e in ghisa con rivestimento antiaderente in ottone. Con una potenza di 1600W, la maxi Crêpes prepara crêpe sia dolci che salate!';
+               $descrizione = 'The best in action sport and extreme!';
                break;
             case 15:
-                $descrizione = 'Tenda da campeggio impermeabile da 8 posti della AKEL. Doppio telo, ripiegata occupa uno spazio minimo, così da poter essere portata comodamente anche nello zaino. Comoda e veloce da montare, anche se piove.';
+                $descrizione = 'Fast as nothing else. It can run under wet conditions.';
                 break;
             case 20:
-                $descrizione = 'Con Party Grill potrete cucinare carne a volontà alla griglia, sulla piastra antiaderente o direttamente sulla fiamma. La griglia è facile da pulire, lavabile anche in lavastoviglie. Pratico anche da trasportare in camping. ';
+                $descrizione = 'The best way to party with friends.';
                 break;
         }
        
