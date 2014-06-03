@@ -43,7 +43,7 @@ try {
       ?>
     <tr>
     <td><?php echo $row['macrocategoria']; ?></td>
-        <td><?php echo $row['categoria']; ?></td>
+    <td><a href="/category.php?id=<?php echo $row['categoria']; ?>"><?php echo $row['categoria']; ?></a></td>
         <td><?php echo $row['nome']; ?></td>
         <td><?php echo $row['prezzo']; ?></td>
         <td><?php echo $row['venduti']; ?></td>

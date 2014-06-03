@@ -17,8 +17,9 @@ try {
        // Create the index new
        $elasticaIndex->create(
             array(
-                'number_of_shards' => 1,
-                'number_of_replicas' => 1,
+               
+                'number_of_shards' => 4,
+                'number_of_replicas' => 2,
                 
                 'analysis' => array(
                     'analyzer' => array(

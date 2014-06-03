@@ -37,18 +37,12 @@ try {
     $elasticaType = $elasticaIndex->getType('prodotto');
 
     // Costruire la query qui
-    $fltQuery = new Elastica\Query\FuzzyLikeThis();
-    $fltQuery->setLikeText($s_searchTerm);
-    $fltQuery->addFields(array("nome","nome_macrocat", "nome_cat"));
-    $fltQuery->setMinSimilarity(0.3);
-    $fltQuery->setMaxQueryTerms(3);
-    $elasticaResultSet = $elasticaType->search($fltQuery);
     
     //Search on the index.
     // $elasticaResultSet = $elasticaIndex->search($elasticaQuery);
     
     // Sostituire con 
-    // $elasticaResultSet = array();
+    $elasticaResultSet = array();
 
   foreach($elasticaResultSet as $elasticaResult){  
     $row = $elasticaResult->getData();
