@@ -34,13 +34,7 @@ try {
 
     // Load index
     $elasticaIndex = $elasticaClient->getIndex('ecommerce');
-
     $elasticaType = $elasticaIndex->getType('prodotto');
-
-    // Define mapping
-    $mapping = new \Elastica\Type\Mapping();
-    $mapping->setType($elasticaType);
-    $mapping->setParam('index_analyzer', 'indexAnalyzer');
     
     // Define a Query. We want a string query.
     $elasticaQueryString  = new \Elastica\Query\QueryString();
@@ -58,18 +52,8 @@ try {
     //Search on the index.
     $elasticaResultSet = $elasticaIndex->search($elasticaQuery);
     
-   /*
-  $db = new PDO($dsn , $username, $password);
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
-          categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id ".
-          "WHERE UPPER(prodotto.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(macrocategoria.nome) LIKE '". strtoupper($s_searchTerm)."'
-          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
-  */
+    // Sostituire con 
+    $elasticaResultSet = array();
 
   foreach($elasticaResultSet as $elasticaResult){  
     $row = $elasticaResult->getData();
