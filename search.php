@@ -2,7 +2,6 @@
 
 include_once 'config.inc.php';
 
-$i_limit = 10; 
 $s_searchTerm = $_GET['key'];
 
 ?>
@@ -23,7 +22,29 @@ $s_searchTerm = $_GET['key'];
 <?php
 
 try {
+    
+    $elasticaClient = new \Elastica\Client();
 
+    // Load index
+    $elasticaIndex = $elasticaClient->getIndex('ecommerce');
+
+    // Define a Query. We want a string query.
+    $elasticaQueryString  = new \Elastica\Query\QueryString();
+
+    //'And' or 'Or' default : 'Or'
+    $elasticaQueryString->setDefaultOperator('AND');
+    $elasticaQueryString->setQuery($s_searchTerm);
+    
+    // Create the actual search object with some data.
+    $elasticaQuery = new \Elastica\Query();
+    $elasticaQuery->setQuery($elasticaQueryString);
+    // $elasticaQuery->setFrom(50);    // Where to start?
+    $elasticaQuery->setLimit(25);   // How many?
+
+    //Search on the index.
+    $elasticaResultSet = $elasticaIndex->search($elasticaQuery);
+    
+   /*
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
@@ -34,14 +55,17 @@ try {
           "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
           "' OR UPPER(macrocategoria.nome) LIKE '". strtoupper($s_searchTerm)."'
           ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
+  */
 
   $start = microtime(true);
 
-  foreach($db->query($sql) as $row){  
+  foreach($elasticaResultSet as $elasticaResult){  
+    $row = $elasticaResult->getData();
+      
       ?>
     <tr>
-    <td><?php echo $row['macrocategoria']; ?></td>
-        <td><?php echo $row['categoria']; ?></td>
+    <td><?php echo $row['macrocategoria']['nome']; ?></td>
+        <td><?php echo $row['categoria']['nome']; ?></td>
         <td><?php echo $row['nome']; ?></td>
         <td><?php echo $row['prezzo']; ?></td>
         <td><?php echo $row['venduti']; ?></td>

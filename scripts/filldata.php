@@ -1,7 +1,7 @@
 #!/usr/local/zend/bin/php
 <?php
 
-include(__DIR__ . "../config.inc.php");
+include(__DIR__ . "/../config.inc.php");
 
 try {
 
@@ -9,6 +9,79 @@ try {
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   $db->beginTransaction();
 
+  $elasticaClient = new \Elastica\Client();
+
+       // Load index
+       $elasticaIndex = $elasticaClient->getIndex('ecommerce');
+
+       // Create the index new
+       $elasticaIndex->create(
+            array(
+                'number_of_shards' => 1,
+                'number_of_replicas' => 1,
+                'analysis' => array(
+                    'analyzer' => array(
+                        'indexAnalyzer' => array(
+                            'type' => 'custom',
+                            'tokenizer' => 'standard',
+                            'filter' => array('lowercase', 'mySnowball')
+                        ),
+                        'searchAnalyzer' => array(
+                            'type' => 'custom',
+                            'tokenizer' => 'standard',
+                            'filter' => array('standard', 'lowercase', 'mySnowball')
+                        )
+                    ),
+                    'filter' => array(
+                        'mySnowball' => array(
+                            'type' => 'snowball',
+                            'language' => 'German'
+                        )
+                    )
+                )
+            ),
+            true
+        );
+
+       $elasticaType = $elasticaIndex->getType('prodotto');
+
+       // Define mapping
+       $mapping = new \Elastica\Type\Mapping();
+       $mapping->setType($elasticaType);
+       $mapping->setParam('index_analyzer', 'indexAnalyzer');
+       $mapping->setParam('search_analyzer', 'searchAnalyzer');
+
+       // Define boost field
+       $mapping->setParam('_boost', array('name' => '_boost', 'null_value' => 1.0));
+
+       // Set mapping
+       $mapping->setProperties(array(
+           'id'      => array('type' => 'integer', 'include_in_all' => FALSE),
+           'macrocategoria'    => array(
+                'type' => 'object',
+                'properties' => array(
+                    'id'      => array('type' => 'integer', 'include_in_all' => FALSE),
+                    'nome'  => array('type' => 'string', 'include_in_all' => TRUE)
+                ),
+            ), 
+           'categoria'    => array(
+                'type' => 'object',
+                'properties' => array(
+                    'id'      => array('type' => 'integer', 'include_in_all' => FALSE),
+                    'nome'  => array('type' => 'string', 'include_in_all' => TRUE)
+                ),
+            ),
+           'nome'     => array('type' => 'string', 'include_in_all' => TRUE),
+           'dataarrivo'  => array('type' => 'date', 'include_in_all' => FALSE),
+           'venduti'=> array('type' => 'integer', 'include_in_all' => FALSE),
+           'prezzo'=> array('type' => 'integer', 'include_in_all' => FALSE),
+            '_boost'  => array('type' => 'float', 'include_in_all' => FALSE)
+    ));
+
+    // Send mapping to type
+    $mapping->send();
+   
+  
     // Macrocategorie
     $db->exec("CREATE TABLE macrocategoria (
           id integer NOT NULL,
@@ -88,13 +161,17 @@ try {
                       'luna', 'volo', 'air', 'fire', 'tee');
     
     $prodottovariante = 0;
+    
+    $am_esDocuments = array();
   
     for ($x=0; $x< 10000; $x++) {
         
         $categoria = rand(2, (count($categorie)))-1;
         $prezzo = (rand(1, 200) * 10);
         $venduti = rand (0, 5000);
-        $dataarrivo = '2014-05-07 '.rand(1,23).':'.rand(0,59);
+        $I_inserimento = new \DateTime();
+        $I_inserimento->setTime(date('h'), rand(0,59));
+        $dataarrivo = $I_inserimento->format("Y-m-d H:i");
         $namebaseel = count($namebase) - 1;
         $nome = $namebase[rand(0, $namebaseel)].$namebase[rand(0, $namebaseel)];
         if (rand(0,1) == 1) {
@@ -109,11 +186,44 @@ try {
             echo "Variante Prodotto ".$nome." " . $varianti[$y] ." creata\n";
             $db->exec("INSERT INTO prodottovariante (id, id_prodotto, id_variante) VALUES (".
                        (++$prodottovariante).",".$x.",".$y.")");
-        }
-  
-    }
-     $db->commit();
+            $as_varianti[$y] = $varianti[$y];
+       }
+       
+    // Create a document
+    $am_prodDoc = array(
+        'id'      => ($x+1),
+        'nome'      => $nome,
+        'macrocategoria'    => array(
+            'id'      => 1,
+            'nome'  => 'Retail',
+        ),
+        'categoria'    => array(
+            'id'      => $categoria,
+            'nome'  => $categorie[$categoria]
+        ),
+        'prezzo'     => $prezzo,
+        'dataarrivo'  => $I_inserimento->getTimestamp(),
+        'venduti'=> $venduti,
+        'varianti' => implode(', ', $as_varianti),
+        '_boost'  => 1.0
+    );
+        
+    $as_varianti = array();
 
+    // First parameter is the id of document.
+    $am_esDoc = new \Elastica\Document(($x+1), $am_prodDoc);
+    $am_esDocuments[] = $am_esDoc;
+    
+    if (($x % 500) == 0 || $x == 9999) {
+      $elasticaType->addDocuments($am_esDocuments);
+      $am_esDocuments = array();
+    }
+  
+  }
+  
+  $elasticaType->getIndex()->refresh();
+  $db->commit();
+  
 }
 catch(PDOException $e) {
   echo 'Ahia! '.$e->getMessage()."\n";
