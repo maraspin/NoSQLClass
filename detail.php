@@ -6,7 +6,7 @@ $id = $_GET['id'];
 
 try {
 
-  $db = new PDO($dsn , $userid, $password);
+  $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   
   $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, variante.nome as variante,
@@ -35,6 +35,7 @@ try {
 <p>Prezzo: <?php echo $item['prezzo']; ?></p>
 <p>Venduti: <?php echo $item['venduti']; ?></p>
 <p>Disp. Dal: <?php echo $item['dataarrivo']; ?></p>
+<p>Descrizione: <?php echo $item['descrizione']; ?>
 <p>Varianti: <?php echo $item['variante']; ?>
     
 <?php  

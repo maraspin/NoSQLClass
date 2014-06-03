@@ -24,7 +24,7 @@ try {
                         'indexAnalyzer' => array(
                             'type' => 'custom',
                             'tokenizer' => 'standard',
-                            'filter' => array('lowercase', 'mySnowball')
+                            'filter' => array('standard','lowercase', 'mySnowball')
                         ),
                         'searchAnalyzer' => array(
                             'type' => 'custom',
@@ -35,7 +35,7 @@ try {
                     'filter' => array(
                         'mySnowball' => array(
                             'type' => 'snowball',
-                            'language' => 'German'
+                            'language' => 'Italian'
                         )
                     )
                 )
@@ -51,7 +51,7 @@ try {
        $mapping->setParam('index_analyzer', 'indexAnalyzer');
        $mapping->setParam('search_analyzer', 'searchAnalyzer');
 
-       // Define boost field
+       // Definisce il field che funge da "booster" - deprecato in Lucene
        $mapping->setParam('_boost', array('name' => '_boost', 'null_value' => 1.0));
 
        // Set mapping
@@ -61,21 +61,22 @@ try {
                 'type' => 'object',
                 'properties' => array(
                     'id'      => array('type' => 'integer', 'include_in_all' => FALSE),
-                    'nome'  => array('type' => 'string', 'include_in_all' => TRUE)
+                    'nome_macrocat'  => array('type' => 'string', 'include_in_all' => TRUE)
                 ),
             ), 
            'categoria'    => array(
                 'type' => 'object',
                 'properties' => array(
                     'id'      => array('type' => 'integer', 'include_in_all' => FALSE),
-                    'nome'  => array('type' => 'string', 'include_in_all' => TRUE)
+                    'nome_cat'  => array('type' => 'string', 'include_in_all' => TRUE)
                 ),
             ),
            'nome'     => array('type' => 'string', 'include_in_all' => TRUE),
+           'descrizione'     => array('type' => 'string', 'include_in_all' => FALSE),
            'dataarrivo'  => array('type' => 'date', 'include_in_all' => FALSE),
-           'venduti'=> array('type' => 'integer', 'include_in_all' => FALSE),
-           'prezzo'=> array('type' => 'integer', 'include_in_all' => FALSE),
-            '_boost'  => array('type' => 'float', 'include_in_all' => FALSE)
+           'venduti'=> array('type' => 'integer', 'include_in_all' => TRUE),
+           'prezzo'=> array('type' => 'integer', 'include_in_all' => TRUE),
+           '_boost'  => array('type' => 'float', 'include_in_all' => FALSE)
     ));
 
     // Send mapping to type
@@ -143,6 +144,7 @@ try {
         prezzo numeric(6,2) NOT NULL,
         venduti integer DEFAULT 0 NOT NULL,
         dataarrivo timestamp with time zone NOT NULL,
+        descrizione character varying NULL,
         categoria_id integer NOT NULL
     );
     ");
@@ -164,8 +166,9 @@ try {
     
     $am_esDocuments = array();
   
-    for ($x=0; $x< 10000; $x++) {
+    for ($x=0; $x< 2500; $x++) {
         
+        $descrizione = '';
         $categoria = rand(2, (count($categorie)))-1;
         $prezzo = (rand(1, 200) * 10);
         $venduti = rand (0, 5000);
@@ -178,8 +181,24 @@ try {
             $nome .= " ".$namebase[rand(0, $namebaseel)];
         }
         
-       $db->exec("INSERT INTO prodotto (id, nome, prezzo, venduti, dataarrivo, categoria_id) VALUES (".
-                      ($x+1).", '".$nome."',".$prezzo.",".$venduti.",'".$dataarrivo."',".$categoria.")");
+        $chance = rand(0,20);
+        switch ($chance) {
+            case 5:
+               $descrizione = 'Bistecchiera a contatto dalla potenza di 1800w. 5 posizioni di cottura : barbecue e tostiera. Piastre rimovibili e e vaschetta raccogligrassi lavabile, anche in lavastoviglie. Termostato regolabile a 5 posizioni.';
+               break;
+            case 10:
+               $descrizione = 'Vuoi preparare delle buonissime crêpe fatte in casa? Ora è possibile, con il Maxi Crêpes ABC di XYZ! La super piastra per crêpe (diametro 55 cm) è amovibile e in ghisa con rivestimento antiaderente in ottone. Con una potenza di 1600W, la maxi Crêpes prepara crêpe sia dolci che salate!';
+               break;
+            case 15:
+                $descrizione = 'Tenda da campeggio impermeabile da 8 posti della AKEL. Doppio telo, ripiegata occupa uno spazio minimo, così da poter essere portata comodamente anche nello zaino. Comoda e veloce da montare, anche se piove.';
+                break;
+            case 20:
+                $descrizione = 'Con Party Grill potrete cucinare carne a volontà alla griglia, sulla piastra antiaderente o direttamente sulla fiamma. La griglia è facile da pulire, lavabile anche in lavastoviglie. Pratico anche da trasportare in camping. ';
+                break;
+        }
+       
+       $db->exec("INSERT INTO prodotto (id, nome, prezzo, venduti, descrizione, dataarrivo, categoria_id) VALUES (".
+                      ($x+1).", '".$nome."',".$prezzo.",".$venduti.",'".$descrizione."','".$dataarrivo."',".$categoria.")");
        echo "Prodotto ".$nome." creato\n";
             
        for ($y = 0; $y < (rand(1, (count($varianti)-1))); $y++) {
@@ -193,13 +212,14 @@ try {
     $am_prodDoc = array(
         'id'      => ($x+1),
         'nome'      => $nome,
+        'descrizione'      => $descrizione,
         'macrocategoria'    => array(
             'id'      => 1,
-            'nome'  => 'Retail',
+            'nome_macrocat'  => 'Retail',
         ),
         'categoria'    => array(
             'id'      => $categoria,
-            'nome'  => $categorie[$categoria]
+            'nome_cat'  => $categorie[$categoria]
         ),
         'prezzo'     => $prezzo,
         'dataarrivo'  => $I_inserimento->getTimestamp(),

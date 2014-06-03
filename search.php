@@ -8,6 +8,11 @@ $s_searchTerm = $_GET['key'];
 
 <h1>NoSQL E-Commerce</h1>
 
+<form action="search.php">
+    <input name="key" value="<?php echo $s_searchTerm; ?>"/><input type="submit" value="Cerca">
+</form>
+
+
 <h2>Risultati della Ricerca</h2>
 <table>
     <thead>
@@ -22,6 +27,8 @@ $s_searchTerm = $_GET['key'];
 <?php
 
 try {
+    
+    $start = microtime(true);
     
     $elasticaClient = new \Elastica\Client();
 
@@ -57,15 +64,13 @@ try {
           ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
   */
 
-  $start = microtime(true);
-
   foreach($elasticaResultSet as $elasticaResult){  
     $row = $elasticaResult->getData();
       
       ?>
     <tr>
-    <td><?php echo $row['macrocategoria']['nome']; ?></td>
-        <td><?php echo $row['categoria']['nome']; ?></td>
+    <td><?php echo $row['macrocategoria']['nome_macrocat']; ?></td>
+        <td><?php echo $row['categoria']['nome_cat']; ?></td>
         <td><?php echo $row['nome']; ?></td>
         <td><?php echo $row['prezzo']; ?></td>
         <td><?php echo $row['venduti']; ?></td>
