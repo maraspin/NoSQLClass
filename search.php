@@ -35,22 +35,11 @@ try {
     // Load index
     $elasticaIndex = $elasticaClient->getIndex('ecommerce');
     $elasticaType = $elasticaIndex->getType('prodotto');
-    
-    // Define a Query. We want a string query.
-    $elasticaQueryString  = new \Elastica\Query\QueryString();
 
-    //'And' or 'Or' default : 'Or'
-    $elasticaQueryString->setDefaultOperator('AND');
-    $elasticaQueryString->setQuery($s_searchTerm);
+    // Costruire la query qui
     
-    // Create the actual search object with some data.
-    $elasticaQuery = new \Elastica\Query();
-    $elasticaQuery->setQuery($elasticaQueryString);
-    // $elasticaQuery->setFrom(50);    // Where to start?
-    $elasticaQuery->setLimit(25);   // How many?
-
     //Search on the index.
-    $elasticaResultSet = $elasticaIndex->search($elasticaQuery);
+    // $elasticaResultSet = $elasticaIndex->search($elasticaQuery);
     
     // Sostituire con 
     $elasticaResultSet = array();
