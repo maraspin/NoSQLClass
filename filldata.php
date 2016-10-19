@@ -6,7 +6,7 @@ $dsn = 'pgsql:host=localhost;dbname=ecommerce';
 
 try {
 
-  $db = new PDO($dsn , 'postgres', 'zf2');
+  $db = new PDO($dsn , 'ecommerce', 'password');
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   $db->beginTransaction();
 
