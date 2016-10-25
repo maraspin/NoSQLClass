@@ -1,7 +1,7 @@
 #!/usr/local/zend/bin/php
 <?php
 
-include(__DIR__ . "../config.inc.php");
+include(__DIR__ . "/../config.inc.php");
 
 try {
 
