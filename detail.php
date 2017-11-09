@@ -68,6 +68,10 @@ try {
 <?php
 }
     $time_taken = microtime(true) - $start;
+
+    $redis->publish("visitatori", "Qualcuno sta guardando l'oggetto ". $item['nome']);
+    $redis->lPush("magazzino", $item['nome']);
+
 ?>
 </p>
 
