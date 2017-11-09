@@ -1,6 +1,7 @@
 <?php
 
 include_once 'config.inc.php';
+include_once 'utils.inc.php';
 
 $s_searchTerm = $_GET['key'];
 
@@ -11,20 +12,6 @@ $s_searchTerm = $_GET['key'];
 <form action="search.php">
     <input name="key" value="<?php echo $s_searchTerm; ?>" /><input type="submit" value="Cerca">
 </form>
-
-<h2>Risultati della Ricerca</h2>
-<p>[Primi <?php echo $itemsToShow; ?> risultati...]</p>
-<table>
-    <thead>
-        <td>Macrocategoria</td>
-        <td>Categoria</td>
-        <td>Prodotto</td>
-        <td>Variante</td>
-        <td>Prezzo</td>
-        <td>Acquisti</td>
-        <td>Data Arrivo</td>
-        <td>Dettaglio</td>
-    </thead>
 <?php
 
 try {
@@ -46,6 +33,23 @@ try {
 
   $start = microtime(true);
 
+  ?>
+  <h2>Risultati della Ricerca</h2>
+  <p>[Primi <?php echo $itemsToShow; ?> risultati...]</p>
+  <table>
+    <thead>
+        <td>Macrocategoria</td>
+        <td>Categoria</td>
+        <td>Prodotto</td>
+        <td>Variante</td>
+        <td>Prezzo</td>
+        <td>Acquisti</td>
+        <td>Data Arrivo</td>
+        <td>Dettaglio</td>
+    </thead>
+
+  <?php
+
   foreach($db->query($sql) as $row){
       ?>
     <tr>
@@ -63,9 +67,12 @@ try {
 
   $time_taken = microtime(true) - $start;
 
-}
-  catch (PDOException $e) {
-    print $e->getMessage();
+} catch (PDOException $e) {
+  handleError("Errore nella connessione con PosgreSQL: " . $e->getMessage());
+} catch (Predis\Connection\ConnectionException $e) {
+  handleError("Errore nella connessione con Redis: " . $e->getMessage());
+} catch (\Exception $e) {
+  handleError("Errore nell'esecuzione dello script: " . $e->getMessage());
 }
 ?>
 </table>

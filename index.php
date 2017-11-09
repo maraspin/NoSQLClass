@@ -1,6 +1,7 @@
 <?php
 
 include_once 'config.inc.php';
+include_once 'utils.inc.php';
 
 ?>
 
@@ -12,17 +13,6 @@ include_once 'config.inc.php';
 </form>
 
 
-<h2>Ultimi <?php echo $itemsToShow; ?> Articoli...</h2>
-<table>
-    <thead>
-        <td>Macrocategoria</td>
-        <td>Categoria</td>
-        <td>Prodotto</td>
-        <td>Prezzo</td>
-        <td>Acquisti</td>
-        <td>Data Arrivo</td>
-        <td>Dettaglio</td>
-    </thead>
 <?php
 
 try {
@@ -36,6 +26,23 @@ try {
           ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT '.$itemsToShow;
 
   $start = microtime(true);
+
+  ?>
+
+
+  <h2>Ultimi <?php echo $itemsToShow; ?> Articoli...</h2>
+  <table>
+    <thead>
+        <td>Macrocategoria</td>
+        <td>Categoria</td>
+        <td>Prodotto</td>
+        <td>Prezzo</td>
+        <td>Acquisti</td>
+        <td>Data Arrivo</td>
+        <td>Dettaglio</td>
+    </thead>
+
+  <?php
 
   foreach($db->query($sql) as $row){
       ?>
@@ -53,9 +60,12 @@ try {
 
   $time_taken = microtime(true) - $start;
 
-}
-  catch (PDOException $e) {
-    print $e->getMessage();
+} catch (PDOException $e) {
+  handleError("Errore nella connessione con PosgreSQL: " . $e->getMessage());
+} catch (Predis\Connection\ConnectionException $e) {
+  handleError("Errore nella connessione con Redis: " . $e->getMessage());
+} catch (\Exception $e) {
+  handleError("Errore nell'esecuzione dello script: " . $e->getMessage());
 }
 ?>
 </table>
