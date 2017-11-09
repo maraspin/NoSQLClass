@@ -1,0 +1,21 @@
+{
+  "name": "nosql-class",
+  "version": "1.0.0",
+  "dependencies": {
+    "redis": "^2.8.0",
+    "requires": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maraspin/NoSQLClass.git"
+  },
+  "author": "Steve Maraspin",
+  "bugs": {
+    "url": "https://github.com/maraspin/NoSQLClass/issues"
+  },
+  "homepage": "https://github.com/maraspin/NoSQLClass#readme"
+}
