@@ -1,12 +1,11 @@
 #!/usr/bin/php
 <?php
 
-ini_set('display_errors', 1);
-$dsn = 'pgsql:host=localhost;port=55432;dbname=nosql';
+include(__DIR__ . "/../config.inc.php");
 
 try {
 
-  $db = new PDO($dsn , 'nosql', 'nosql');
+  $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   $db->beginTransaction();
 
@@ -28,8 +27,7 @@ try {
       );");
     echo "Tabella categoria creata\n";
 
-    $categorie = [
-                  'Elettronica',
+    $categorie = ['Elettronica',
                   'Giardinaggio',
                   'Sport',
                   'Abbigliamento',
@@ -39,7 +37,7 @@ try {
                   'Viaggi',
                   'Cucina',
                   'Modellismo'
-                 ];
+                ];
     for ($x=0; $x< count($categorie); $x++) {
             $db->exec("INSERT INTO categoria (id, nome, macrocategoria_id) VALUES (".($x+1).", '".$categorie[$x]."', 1)");
             echo "Categoria ".$categorie[$x]." creata\n";
@@ -96,7 +94,7 @@ try {
 
     $prodottovariante = 0;
 
-    for ($x=0; $x< 200000; $x++) {
+    for ($x=0; $x<250000; $x++) {
 
         $categoria = rand(2, (count($categorie)))-1;
         $prezzo = (rand(1, 200) * 10);
