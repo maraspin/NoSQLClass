@@ -18,7 +18,8 @@ try {
       "port" => 6379));
   */
 
-  if (!$redis->exists($id)) {
+  // Verificare se esiste la chiave su Redis...
+  if ( COMPLETARE ) {
 
     $db = new PDO($dsn , $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -40,11 +41,15 @@ try {
     }
     $item['variante'] = implode(', ',$varianti);
 
+    // Serializziamo il dato reperito da DB...
     $data = json_encode($item, true);
-    $redis->set($id, $data);
+
+    // Salviamo su Redis il dato reperito da DB
+    $redis->COMPLETARE;
 
   } else {
-    $item = json_decode($redis->get($id), true);
+    // Reperiamo da Redis il dato di nostro interesse, precedentemente cachato
+    $item = json_decode($redis->COMPLETARE, true);
   }
 } catch (PDOException $e) {
   handleError("Errore nella connessione con PosgreSQL: " . $e->getMessage());
