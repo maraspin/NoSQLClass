@@ -1,8 +1,6 @@
-<?php 
+<?php
 
 include_once 'config.inc.php';
-
-$i_limit = 10; 
 
 ?>
 
@@ -14,7 +12,7 @@ $i_limit = 10;
 </form>
 
 
-<h2>Ultimi <?php echo $i_limit; ?> Articoli...</h2>
+<h2>Ultimi <?php echo $itemsToShow; ?> Articoli...</h2>
 <table>
     <thead>
         <td>Macrocategoria</td>
@@ -31,15 +29,15 @@ try {
 
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $sql = 'SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
-          categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id 
-          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT '.$i_limit;
+
+  $sql = 'SELECT prodotto.*, macrocategoria.nome as macrocategoria,
+          categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id
+          join macrocategoria on macrocategoria.id = categoria.macrocategoria_id
+          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT '.$itemsToShow;
 
   $start = microtime(true);
 
-  foreach($db->query($sql) as $row){  
+  foreach($db->query($sql) as $row){
       ?>
     <tr>
     <td><?php echo $row['macrocategoria']; ?></td>
@@ -52,9 +50,9 @@ try {
     </tr>
       <?php
   }
-  
+
   $time_taken = microtime(true) - $start;
-  
+
 }
   catch (PDOException $e) {
     print $e->getMessage();
@@ -62,4 +60,4 @@ try {
 ?>
 </table>
 
-<?php echo "Time taken: " . $time_taken; ?>
+<p>Time taken: <strong><?php echo $time_taken; ?></strong></p>

@@ -38,7 +38,10 @@ try {
 <p>Disponibile dal: <?php echo $item['dataarrivo']; ?></p>
 <?php if (count($varianti) > 0) { ?>
   <p>Varianti: <?php echo $item['variante']; ?>
-<?php }
+<?php } else { ?>
+  <p>Variante Unica</p>
+<?php
+}
     $time_taken = microtime(true) - $start;
 ?>
 </p>

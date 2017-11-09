@@ -2,7 +2,6 @@
 
 include_once 'config.inc.php';
 
-$i_limit = 10;
 $s_searchTerm = $_GET['key'];
 
 ?>
@@ -10,10 +9,11 @@ $s_searchTerm = $_GET['key'];
 <h1>NoSQL E-Commerce</h1>
 
 <form action="search.php">
-    <input name="key" /><input type="submit" value="Cerca">
+    <input name="key" value="<?php echo $s_searchTerm; ?>" /><input type="submit" value="Cerca">
 </form>
 
 <h2>Risultati della Ricerca</h2>
+<p>[Primi <?php echo $itemsToShow; ?> risultati...]</p>
 <table>
     <thead>
         <td>Macrocategoria</td>
@@ -32,17 +32,17 @@ try {
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-  echo $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria,
+  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria,
           categoria.nome as categoria, variante.nome as variante ".
           "FROM prodotto join categoria on categoria.id = prodotto.categoria_id
           join prodottovariante on prodotto.id = prodottovariante.id_prodotto
           LEFT JOIN variante on variante.id = prodottovariante.id_variante
           join macrocategoria on macrocategoria.id = categoria.macrocategoria_id ".
-          "WHERE UPPER(prodotto.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
-          "' OR UPPER(macrocategoria.nome) LIKE '". strtoupper($s_searchTerm).
-          "' OR UPPER(variante.nome) LIKE '". strtoupper($s_searchTerm)."'
-          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$i_limit;
+          "WHERE UPPER(prodotto.nome) LIKE '%".strtoupper($s_searchTerm).
+          "%' OR UPPER(categoria.nome) LIKE '%".strtoupper($s_searchTerm).
+          "%' OR UPPER(macrocategoria.nome) LIKE '%". strtoupper($s_searchTerm).
+          "%' OR UPPER(variante.nome) LIKE '%". strtoupper($s_searchTerm)."%'
+          ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT ".$itemsToShow;
 
   $start = microtime(true);
 
