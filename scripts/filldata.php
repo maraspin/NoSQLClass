@@ -1,4 +1,4 @@
-#!/usr/local/zend/bin/php
+#!/usr/bin/php
 <?php
 
 include(__DIR__ . "/../config.inc.php");
@@ -18,7 +18,7 @@ try {
 
     $db->exec("INSERT INTO macrocategoria (id, nome) VALUES (1, 'Retail')");
     $db->exec("INSERT INTO macrocategoria (id, nome) VALUES (2, 'Digital')");
-    
+
     // Categorie
     $db->exec("CREATE TABLE categoria (
           id integer NOT NULL,
@@ -27,21 +27,22 @@ try {
       );");
     echo "Tabella categoria creata\n";
 
-    $categorie = array('Elettronica', 
-                       'Giardinaggio', 
-                       'Sport', 
-                       'Abbigliamento', 
-                       'Salute', 
-                       'Musica', 
-                       'Fotografia', 
-                       'Viaggi', 
-                       'Cucina', 
-                       'Modellismo');
+    $categorie = ['Elettronica',
+                  'Giardinaggio',
+                  'Sport',
+                  'Abbigliamento',
+                  'Salute',
+                  'Musica',
+                  'Fotografia',
+                  'Viaggi',
+                  'Cucina',
+                  'Modellismo'
+                ];
     for ($x=0; $x< count($categorie); $x++) {
             $db->exec("INSERT INTO categoria (id, nome, macrocategoria_id) VALUES (".($x+1).", '".$categorie[$x]."', 1)");
             echo "Categoria ".$categorie[$x]." creata\n";
     }
-    
+
     // Varianti
     $db->exec("CREATE TABLE variante (
         id integer NOT NULL,
@@ -49,14 +50,15 @@ try {
     );");
     echo "Tabella varianti creata\n";
 
-    $varianti = array('Rosso', 
-                       'Verde', 
-                       'Blu', 
-                       'Nero', 
-                       'Giallo', 
-                       'Marrone', 
-                       'Viola'
-                );
+    $varianti = [
+                  'Rosso',
+                  'Verde',
+                  'Blu',
+                  'Nero',
+                  'Giallo',
+                  'Marrone',
+                  'Viola'
+                ];
     for ($x=0; $x< count($varianti); $x++) {
             echo "Variante ".$varianti[$x]." creata\n";
             $db->exec("INSERT INTO variante (id, nome) VALUES (".($x+1).", '".$varianti[$x]."')");
@@ -82,35 +84,40 @@ try {
         id_variante integer NOT NULL
     );");
     echo "Tabella varianti/prodotto creata\n";
-    
-    $namebase = array('pingo', 'pongo', 'bum', 'bam', 'foo', 
-                      'baz', 'bar', 'pogo', 'dogo', 'sole',
-                      'luna', 'volo', 'air', 'fire', 'tee');
-    
+
+    $namebase = ['pingo', 'pongo', 'bum', 'bam', 'foo',
+                 'baz', 'bar', 'pogo', 'dogo', 'sole',
+                 'luna', 'volo', 'air', 'fire', 'tee',
+                 'ping', 'lyn', 'chee', 'wire', 'shark',
+                 'goo', 'goose', 'moose', 'sting', 'ray'
+                ];
+
     $prodottovariante = 0;
-  
-    for ($x=0; $x< 10000; $x++) {
-        
+
+    for ($x=0; $x<250000; $x++) {
+
         $categoria = rand(2, (count($categorie)))-1;
         $prezzo = (rand(1, 200) * 10);
         $venduti = rand (0, 5000);
-        $dataarrivo = '2014-05-07 '.rand(1,23).':'.rand(0,59);
+        $time = time();
+        $timestamp = rand(($time - 2000000), $time);
+        $dataarrivo = date("Y-m-d H:i:s", $timestamp);
         $namebaseel = count($namebase) - 1;
         $nome = $namebase[rand(0, $namebaseel)].$namebase[rand(0, $namebaseel)];
         if (rand(0,1) == 1) {
             $nome .= " ".$namebase[rand(0, $namebaseel)];
         }
-        
+
        $db->exec("INSERT INTO prodotto (id, nome, prezzo, venduti, dataarrivo, categoria_id) VALUES (".
                       ($x+1).", '".$nome."',".$prezzo.",".$venduti.",'".$dataarrivo."',".$categoria.")");
        echo "Prodotto ".$nome." creato\n";
-            
+
        for ($y = 0; $y < (rand(1, (count($varianti)-1))); $y++) {
             echo "Variante Prodotto ".$nome." " . $varianti[$y] ." creata\n";
             $db->exec("INSERT INTO prodottovariante (id, id_prodotto, id_variante) VALUES (".
                        (++$prodottovariante).",".$x.",".$y.")");
         }
-  
+
     }
      $db->commit();
 

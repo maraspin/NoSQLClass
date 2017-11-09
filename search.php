@@ -1,8 +1,8 @@
-<?php 
+<?php
 
 include_once 'config.inc.php';
 
-$i_limit = 10; 
+$i_limit = 10;
 $s_searchTerm = $_GET['key'];
 
 ?>
@@ -31,12 +31,12 @@ try {
 
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
-  $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria, 
+
+  echo $sql = "SELECT prodotto.*, macrocategoria.nome as macrocategoria,
           categoria.nome as categoria, variante.nome as variante ".
-          "FROM prodotto join categoria on categoria.id = prodotto.categoria_id 
-          join prodottovariante on prodotto.id = prodottovariante.id_prodotto 
-          join variante on variante.id = prodottovariante.id_variante 
+          "FROM prodotto join categoria on categoria.id = prodotto.categoria_id
+          join prodottovariante on prodotto.id = prodottovariante.id_prodotto
+          LEFT JOIN variante on variante.id = prodottovariante.id_variante
           join macrocategoria on macrocategoria.id = categoria.macrocategoria_id ".
           "WHERE UPPER(prodotto.nome) LIKE '".strtoupper($s_searchTerm).
           "' OR UPPER(categoria.nome) LIKE '".strtoupper($s_searchTerm).
@@ -46,7 +46,7 @@ try {
 
   $start = microtime(true);
 
-  foreach($db->query($sql) as $row){  
+  foreach($db->query($sql) as $row){
       ?>
     <tr>
     <td><?php echo $row['macrocategoria']; ?></td>
@@ -60,9 +60,9 @@ try {
     </tr>
       <?php
   }
-  
+
   $time_taken = microtime(true) - $start;
-  
+
 }
   catch (PDOException $e) {
     print $e->getMessage();
@@ -70,4 +70,7 @@ try {
 ?>
 </table>
 
-<?php echo "Time taken: " . $time_taken; ?>
+<p>Time taken: <strong><?php echo $time_taken; ?></strong></p>
+
+<br />
+<a href="/index.php">Back</a>

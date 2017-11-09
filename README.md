@@ -1,4 +1,5 @@
 NoSQLCourse
 ===========
 
-Sample Code for NoSQL Course - Pordenone, 2014
+Sample Code for "Databases for the Cloud" (AKA NoSQL Datastores) Course
+ITS Kennedy - Pordenone, Italy
