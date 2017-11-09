@@ -1,9 +1,17 @@
 #!/usr/bin/php
 <?php
 
-include(__DIR__ . "/../config.inc.php");
+include_once(__DIR__ . "/../config.inc.php");
+include_once(__DIR__ . "/../utils.inc.php");
 
 try {
+
+  $redis = new Predis\Client();
+
+  // Redis Transaction
+  $redis->multi();
+  $redis->del('popular');
+  $redis->del('latest');
 
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -99,9 +107,7 @@ try {
         $categoria = rand(2, (count($categorie)))-1;
         $prezzo = (rand(1, 200) * 10);
         $venduti = rand (0, 5000);
-        $time = time();
-        $timestamp = rand(($time - 2000000), $time);
-        $dataarrivo = date("Y-m-d H:i:s", $timestamp);
+        $dataarrivo = date("Y-m-d H:i:s");
         $namebaseel = count($namebase) - 1;
         $nome = $namebase[rand(0, $namebaseel)].$namebase[rand(0, $namebaseel)];
         if (rand(0,1) == 1) {
@@ -110,6 +116,23 @@ try {
 
        $db->exec("INSERT INTO prodotto (id, nome, prezzo, venduti, dataarrivo, categoria_id) VALUES (".
                       ($x+1).", '".$nome."',".$prezzo.",".$venduti.",'".$dataarrivo."',".$categoria.")");
+
+
+       $item = ['id' => ($x+1),
+                 'nome' => $nome,
+                 'prezzo' => $prezzo,
+                 'venduti' => $venduti,
+                 'dataarrivo' => $dataarrivo,
+                 'categoria'=> $categorie[$categoria],
+                 'macrocategoria' => 'Retail'
+                ];
+
+       $redis->zAdd('popular', $venduti, json_encode($item));
+
+       // Inseriti gli ultimi (LIFO)
+       $redis->lPush('latest', json_encode($item));
+       $redis->lTrim('latest', 0, $itemsToShow);
+
        echo "Prodotto ".$nome." creato\n";
 
        for ($y = 0; $y < (rand(1, (count($varianti)-1))); $y++) {
@@ -119,7 +142,9 @@ try {
         }
 
     }
-     $db->commit();
+
+    $db->commit();
+    $redis->exec();
 
 }
 catch(PDOException $e) {

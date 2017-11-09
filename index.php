@@ -17,6 +17,7 @@ include_once 'utils.inc.php';
 
 try {
 
+  /*
   $db = new PDO($dsn , $username, $password);
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -24,11 +25,12 @@ try {
           categoria.nome as categoria FROM prodotto join categoria on categoria.id = prodotto.categoria_id
           join macrocategoria on macrocategoria.id = categoria.macrocategoria_id
           ORDER by prodotto.dataarrivo DESC, categoria.nome, prodotto.nome LIMIT '.$itemsToShow;
+  */
+  $redis = new Predis\Client();
 
   $start = microtime(true);
 
   ?>
-
 
   <h2>Ultimi <?php echo $itemsToShow; ?> Articoli...</h2>
   <table>
@@ -44,7 +46,11 @@ try {
 
   <?php
 
-  foreach($db->query($sql) as $row){
+    $am_items2 = $redis->lRange('latest', 0, ($itemsToShow-1));
+    foreach($am_items2 as $json){
+
+      $row = json_decode($json, true);
+
       ?>
     <tr>
     <td><?php echo $row['macrocategoria']; ?></td>
