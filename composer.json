@@ -1,0 +1,14 @@
+{
+    "name": "maraspin/nosql_class_sample_project",
+    "description": "NoSQL Class Sample Project",
+    "authors": [
+        {
+            "name": "Steve Maraspin",
+            "email": "s.maraspin@mvassociati.it"
+        }
+    ],
+    "require": {
+        "predis/predis": "1.1.1"
+    }
+}
+

@@ -7,3 +7,6 @@ $username = 'nosql';
 $password = 'nosql';
 
 $itemsToShow = 25;
+
+require 'vendor/autoload.php';
+Predis\Autoloader::register();
