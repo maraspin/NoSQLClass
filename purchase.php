@@ -7,8 +7,6 @@ $id = $_GET['id'];
 
 try {
 
-  $start = microtime(true);
-
   $redis = new Predis\Client();
 
   /*
@@ -55,28 +53,8 @@ try {
 }
 
 
-
 ?>
-<h1>Scheda Prodotto: <?php echo $item['nome']; ?></h1>
-<p>Prezzo: <?php echo $item['prezzo']; ?></p>
-<p>Venduti: <?php echo $item['venduti']; ?></p>
-<p>Disponibile dal: <?php echo $item['dataarrivo']; ?></p>
-<?php if (strlen($item['variante']) > 0) { ?>
-  <p>Varianti: <?php echo $item['variante']; ?>
-<?php } else { ?>
-  <p>Variante Unica</p>
-<?php
-}
-    $time_taken = microtime(true) - $start;
-
-    $redis->publish("visitatori", "Qualcuno sta guardando l'oggetto ". $item['nome']);
-    $redis->lPush("magazzino", $item['nome']);
-
-?>
-</p>
-<a href="./purchase.php?id=<?php echo $id; ?>">Compra Oggetto</a>
-
-<p>Time taken: <strong><?php echo $time_taken; ?></strong></p>
-
+<h1>Congratulazioni!</h1>
+<p>Oggetto Acquistato</p>
 <br />
 <a href="/index.php">Back</a>
