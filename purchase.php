@@ -44,6 +44,9 @@ try {
   } else {
     $item = json_decode($redis->get($id), true);
   }
+
+  $redis->lPush("magazzino", $item['nome']);
+
 } catch (PDOException $e) {
   handleError("Errore nella connessione con PosgreSQL: " . $e->getMessage());
 } catch (Predis\Connection\ConnectionException $e) {
@@ -52,9 +55,8 @@ try {
   handleError("Errore nell'esecuzione dello script: " . $e->getMessage());
 }
 
-
 ?>
 <h1>Congratulazioni!</h1>
-<p>Oggetto Acquistato</p>
+<p>Oggetto <?php echo $item['nome']; ?> Acquistato</p>
 <br />
 <a href="/index.php">Back</a>
