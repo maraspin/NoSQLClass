@@ -9,14 +9,13 @@ try {
 
   $start = microtime(true);
 
-  $redis = new Predis\Client();
+  $connection = new PhpAmqpLib\Connection\AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+  $channel = $connection->channel();
 
-  /*
-  $redis = new PredisClient(array(
-      "scheme" => "tcp",
-      "host" => "127.0.0.1",
-      "port" => 6379));
-  */
+  // Dichiariamo l'exchange
+  $channel->exchange_declare('visitatori', 'fanout', false, false, false);
+
+  $redis = new Predis\Client();
 
   if (!$redis->exists($id)) {
 
@@ -69,7 +68,13 @@ try {
 }
     $time_taken = microtime(true) - $start;
 
-    $redis->publish("visitatori", "Qualcuno sta guardando l'oggetto ". $item['nome']);
+    $msg = new PhpAmqpLib\Message\AMQPMessage(
+                        "Qualcuno sta guardando l'oggetto ". $item['nome'],
+                        array('delivery_mode' => PhpAmqpLib\Message\AMQPMessage::DELIVERY_MODE_PERSISTENT)
+                      );
+    $channel->basic_publish($msg, 'visitatori');
+    $channel->close();
+    $connection->close();
 
 ?>
 </p>

@@ -9,12 +9,9 @@ try {
 
   $redis = new Predis\Client();
 
-  /*
-  $redis = new PredisClient(array(
-      "scheme" => "tcp",
-      "host" => "127.0.0.1",
-      "port" => 6379));
-  */
+  $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+  $channel = $connection->channel();
+  $channel->queue_declare('magazzino', false, true, false, false);
 
   if (!$redis->exists($id)) {
 
@@ -45,7 +42,14 @@ try {
     $item = json_decode($redis->get($id), true);
   }
 
-  $redis->lPush("magazzino", $item['nome']);
+  $msg = new \PhpAmqpLib\Message\AMQPMessage(
+                        $item['nome'],
+                        array('delivery_mode' => \PhpAmqpLib\Message\AMQPMessage::DELIVERY_MODE_PERSISTENT)
+                      );
+  $channel->basic_publish($msg, '', 'magazzino');
+  $channel->close();
+  $connection->close();
+
 
 } catch (PDOException $e) {
   handleError("Errore nella connessione con PosgreSQL: " . $e->getMessage());

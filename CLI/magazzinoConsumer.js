@@ -1,14 +1,22 @@
-var redis = require("redis");
+#!/usr/bin/env node
 
-console.log("Applicazione Queue Worker avvviata");
+var amqp = require('amqplib/callback_api');
 
-var client = redis.createClient();
-waitForPush();
+amqp.connect('amqp://localhost', function(err, conn) {
+  conn.createChannel(function(err, ch) {
 
-function waitForPush () {
-  client.brpop(['magazzino',0], function (listName, item) {
-    // do stuff
-    console.log("Spedire Oggetto: %s", item);
-    waitForPush();
+    var q = 'magazzino';
+
+    ch.assertQueue(q, {durable: true});
+    ch.prefetch(1);
+    console.log("In ascolto sulla coda %s. Premere CTRL+C per uscire", q);
+    ch.consume(q, function(msg) {
+      var secs = msg.content.toString().split('.').length - 1;
+
+      console.log("Spedire Oggetto: %s", msg.content.toString());
+      setTimeout(function() {
+        ch.ack(msg);
+      }, secs * 1000);
+    }, {noAck: false});
   });
-}
+});
