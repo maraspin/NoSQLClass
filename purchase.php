@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 1);
+
 include_once 'config.inc.php';
 include_once 'utils.inc.php';
 
@@ -42,8 +44,32 @@ try {
     $item = json_decode($redis->get($id), true);
   }
 
+  $qty = rand(1, 4);
+
+  list($x) = explode(", ",$item['variante']);
+
+  $message = [];
+  $prodotto['id'] = $id;
+  $prodotto['nome'] = $item['nome'];
+  $prodotto['variante'] = $x;
+  $prodotto['prezzo'] = $item['prezzo'];
+  $prodotto['quantita'] = $qty;
+
+  $utente['cognome'] = 'Del Mas';
+  $utente['nome'] = 'Felix';
+  $utente['indirizzo'] = 'Via dei Rizzi, 90';
+
+  $message['id'] = uniqid();
+  $message['dataora'] = date("Y-m-d H:i:s");
+  $message['prodotti'] = $qty;
+  $message['totale'] = $item['prezzo'] * $qty;
+  $message['prodotto'] = $prodotto;
+  $message['utente'] = $utente;
+
+  $msgPayload = json_encode($message);
+
   $msg = new \PhpAmqpLib\Message\AMQPMessage(
-                        $item['nome'],
+                        $msgPayload,
                         array('delivery_mode' => \PhpAmqpLib\Message\AMQPMessage::DELIVERY_MODE_PERSISTENT)
                       );
   $channel->basic_publish($msg, '', 'magazzino');
